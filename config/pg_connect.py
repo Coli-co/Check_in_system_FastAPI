@@ -1,25 +1,24 @@
 import os
-import psycopg2
+import asyncio
+import asyncpg
 from dotenv import load_dotenv
 
 
 load_dotenv()
 
 
-def connect_to_postgresql():
+async def connect_to_postgresql():
     try:
-        connection = psycopg2.connect(
+        connection = await asyncpg.connect(
             host=os.getenv("PGHOST"),
             database=os.getenv("PGDB"),
             user=os.getenv("PGUSER"),
             password=os.getenv("PGPASSWORD")
         )
-        connection.autocommit = True
 
-        cursor = connection.cursor()
-        print('DB connection established.')
-        return connection, cursor
-
-    except psycopg2.Error as error:
-        print("Connecting to PostgreSQL error:", error)
+    except Exception as err:
+        print("Connecting to PostgreSQL error:", err)
         return None, None
+    else:
+        print('DB connection established.')
+        return connection
