@@ -1,7 +1,7 @@
 import os
 import json
 import asyncio
-import psycopg2
+# import psycopg2
 from config import connect_to_postgresql
 from helper import get_utc_in_milliseconds_from_taipei_time
 
@@ -16,9 +16,6 @@ async def create_table():
               clockIn BIGINT CHECK (clockIn >= 0),
               clockOut BIGINT CHECK (clockOut >= 0));
           """)
-
-        # print('Table created successfully.')
-
     except Exception:
         print("Create table error.")
     else:
