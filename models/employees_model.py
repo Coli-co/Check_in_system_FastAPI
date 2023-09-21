@@ -107,3 +107,23 @@ async def fillin_clockin_data(id, clockin):
         return True
     finally:
         await conn.close()
+
+
+async def employee_with_clockin_earliest(date):
+    try:
+        conn = await connect_to_postgresql()
+        query = """
+            SELECT *  FROM employees
+            WHERE clockin IS NOT NULL
+                AND DATE_TRUNC('day', TO_TIMESTAMP(clockin / 1000.0)) = DATE_TRUNC('day', TO_TIMESTAMP($1 / 1000.0))
+            ORDER BY clockin
+            LIMIT 5;
+        """
+        result = await conn.fetch(query, date)
+    except:
+        print("Get clockin earliest employees data err.")
+    else:
+        print("Get clockin earliest employees data successfully.")
+        return result
+    finally:
+        await conn.close()

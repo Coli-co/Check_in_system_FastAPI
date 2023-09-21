@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, status, Query, Path
 from typing import Optional
 from pydantic import BaseModel
-from models import employees_for_specific_date_range, employees_for_specific_date, clockin_and_clockout, find_employee_exist_or_not, fillin_clockin_data, fillin_clockout_data
+from models import employees_for_specific_date_range, employees_for_specific_date, clockin_and_clockout, find_employee_exist_or_not, fillin_clockin_data, fillin_clockout_data, employee_with_clockin_earliest
 
 from helper import process_employee_data, check_clockin_or_clockout, process_employee_exist_data
 
@@ -116,3 +116,13 @@ async def fillin_clockin_or_clockout(data: ClockInOutDataFilled, employeenumber:
         if update_clockin_result:
             raise HTTPException(
                 status_code=201, detail="Clockin record updated successfully.")
+
+
+@app.get('/employees/clockin-earliest')
+async def employeesWithClockinEarliestForSpecificDate(date: int):
+    if date <= 0:
+        raise HTTPException(
+            status_code=400, detail="Date must be greater than zero.")
+    rows = await employee_with_clockin_earliest(date)
+    result = await process_employee_data(rows)
+    return result
