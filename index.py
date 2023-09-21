@@ -13,12 +13,12 @@ def homepage():
 
 
 @app.get('/employees/date-range')
-async def all_employees_for_specific_date_range(start: str, end: str):
-    if int(start) <= 0 or int(end) <= 0:
+async def all_employees_for_specific_date_range(start: int, end: int):
+    if start <= 0 or end <= 0:
         raise HTTPException(
             status_code=400, detail="Start or end must be grater than zero.")
 
-    if int(start) > int(end):
+    if start > end:
         raise HTTPException(
             status_code=400, detail="Start value must be less than end value.")
 
