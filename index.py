@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException, status, Query
 from models import employees_for_specific_date_range
 
+from helper import process_employee_data
+
 app = FastAPI()
 
 
@@ -20,5 +22,6 @@ async def all_employees_for_specific_date(start: str, end: str):
         raise HTTPException(
             status_code=400, detail="Start value must be less than end value.")
 
-    result = await employees_for_specific_date_range(start, end)
+    rows = await employees_for_specific_date_range(start, end)
+    result = await process_employee_data(rows)
     return result
