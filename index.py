@@ -119,10 +119,13 @@ async def fillin_clockin_or_clockout(data: ClockInOutDataFilled, employeenumber:
 
 
 @app.get('/employees/clockin-earliest')
-async def employeesWithClockinEarliestForSpecificDate(date: int):
+async def employees_with_clockin_earliest_for_specific_date(date: int):
     if date <= 0:
         raise HTTPException(
             status_code=400, detail="Date must be greater than zero.")
     rows = await employee_with_clockin_earliest(date)
     result = await process_employee_data(rows)
     return result
+
+
+
