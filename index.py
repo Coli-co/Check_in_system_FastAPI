@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, status, Query
-from models import employees_for_specific_date_range, employees_for_specific_date
+from typing import Optional
+from models import employees_for_specific_date_range, employees_for_specific_date, clockin_and_clockout
 
 from helper import process_employee_data
 
@@ -35,3 +36,37 @@ async def all_employees_for_specific_date(date: int):
     rows = await employees_for_specific_date(date)
     result = await process_employee_data(rows)
     return result
+
+
+@app.post('/employees')
+async def clock_feature(employeeNumber: int, clockin: Optional[int] = None, clockout: Optional[int] = None):
+
+    if not clockin and not clockout:
+        raise HTTPException(
+            status_code=400, detail="Clockin or clockout required.")
+
+    if not clockout and clockin <= 0:
+        raise HTTPException(
+            status_code=400, detail="Clockin must be greater than zero.")
+
+    if not clockin and clockout <= 0:
+        raise HTTPException(
+            status_code=400, detail="Clockout must be greater than zero.")
+
+    if clockin is not None and clockout is not None and clockin > clockout:
+        raise HTTPException(
+            status_code=400, detail="Clockin value must be less than clockout.")
+
+    rowCount = await clockin_and_clockout(employeeNumber, clockin, clockout)
+
+    if rowCount:
+        if clockout is None and clockin > 0:
+            raise HTTPException(
+                status_code=201, detail="Clockin record created successfully.")
+
+        elif clockin is None and clockout > 0:
+            raise HTTPException(
+                status_code=201, detail="Clockout record created successfully.")
+
+        raise HTTPException(
+            status_code=201, detail="Employee record created successfully.")

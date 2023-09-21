@@ -1,5 +1,4 @@
 from config import connect_to_postgresql
-import asyncio
 
 
 async def employees_for_specific_date_range(start, end):
@@ -31,8 +30,26 @@ async def employees_for_specific_date(date):
         result = await conn.fetch(query, date)
     except Exception:
         print("Get employeesForSpecificDate data err.")
+        return False
     else:
         print("Get employeesForSpecificDate data successfully.")
         return result
+    finally:
+        await conn.close()
+
+
+async def clockin_and_clockout(employeeNumber, clockIn, clockOut):
+    try:
+        conn = await connect_to_postgresql()
+        query = """
+            INSERT INTO employees (employeenumber, clockin, clockout) VALUES ($1, $2, $3)
+            """
+        await conn.execute(query, employeeNumber, clockIn, clockOut)
+    except:
+        print("Clockin and clockout data inserted error.")
+        return False
+    else:
+        print("New employee data inserted successfully.")
+        return True
     finally:
         await conn.close()
