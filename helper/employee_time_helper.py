@@ -22,7 +22,8 @@ async def get_utc_in_milliseconds_from_taipei_time(taipei_date_time):
     return milliseconds
 
 
-# Example usage:
-# taipei_datetime = '2023-09-20 14:30'
-# result = get_utc_in_milliseconds_from_taipei_time(taipei_datetime)
-# print(result)
+def calculate_time_difference_in_hours(clockin, clockout):
+    time_diff_in_milliseconds = clockout - clockin
+    hours_worked = round(
+        time_diff_in_milliseconds / (60 * 60 * 1000), 2)
+    return hours_worked
