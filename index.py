@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, status, Query, Path
 from typing import Optional
 from pydantic import BaseModel
-from models import employees_for_specific_date_range, employees_for_specific_date, clockin_and_clockout, find_employee_exist_or_not, fillin_clockin_data, fillin_clockout_data, employee_with_clockin_earliest
+from models import employees_for_specific_date_range, employees_for_specific_date, clockin_and_clockout, find_employee_exist_or_not, fillin_clockin_data, fillin_clockout_data, employee_with_clockin_earliest, employee_with_no_clockout
 
 from helper import process_employee_data, check_clockin_or_clockout, process_employee_exist_data
 
@@ -128,4 +128,16 @@ async def employees_with_clockin_earliest_for_specific_date(date: int):
     return result
 
 
+@app.get('/employees/no-clockout')
+async def employees_with_no_clockout_for_specific_date_range(start: int, end: int):
+    if start <= 0 or end <= 0:
+        raise HTTPException(
+            status_code=400, detail="Start or end must be grater than zero.")
 
+    if start > end:
+        raise HTTPException(
+            status_code=400, detail="Start value must be less than end value.")
+
+    rows = await employee_with_no_clockout(start, end)
+    result = await process_employee_data(rows)
+    return result

@@ -1,5 +1,4 @@
 from config import connect_to_postgresql
-import asyncio
 
 
 async def employees_for_specific_date_range(start, end):
@@ -124,6 +123,26 @@ async def employee_with_clockin_earliest(date):
         print("Get clockin earliest employees data err.")
     else:
         print("Get clockin earliest employees data successfully.")
+        return result
+    finally:
+        await conn.close()
+
+
+async def employee_with_no_clockout(start, end):
+    try:
+        conn = await connect_to_postgresql()
+        query = """
+            SELECT *
+            FROM employees
+            WHERE clockOut IS NULL
+            AND  TO_TIMESTAMP( clockIn / 1000.0) >= TO_TIMESTAMP($1 / 1000.0)
+            AND  TO_TIMESTAMP( clockIn / 1000.0) <= TO_TIMESTAMP($2 / 1000.0) + INTERVAL '1 day - 1 second';         
+        """
+        result = await conn.fetch(query, start, end)
+    except:
+        print("Get no clockout employee data err.")
+    else:
+        print("Get no clockout employee data successfully.")
         return result
     finally:
         await conn.close()
