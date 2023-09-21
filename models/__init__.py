@@ -1,1 +1,1 @@
-from .employees_model import employees_for_specific_date_range
+from .employees_model import employees_for_specific_date_range, employees_for_specific_date

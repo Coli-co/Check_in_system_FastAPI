@@ -4,6 +4,9 @@ rest_time = 1.5
 
 
 async def process_employee_data(data):
+    if data is None:
+        return []
+
     process_data = []
     for item in data:
         each_item = dict(item)
