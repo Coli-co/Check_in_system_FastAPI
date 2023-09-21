@@ -12,8 +12,8 @@ def homepage():
         status_code=200, detail='Welcome to employees clockIn or clockOut API server.')
 
 
-@app.get('/employees')
-async def all_employees_for_specific_date(start: str, end: str):
+@app.get('/employees/date-range')
+async def all_employees_for_specific_date_range(start: str, end: str):
     if int(start) <= 0 or int(end) <= 0:
         raise HTTPException(
             status_code=400, detail="Start or end must be grater than zero.")
