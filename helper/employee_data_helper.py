@@ -22,3 +22,35 @@ async def process_employee_data(data):
             each_item['total_work_ime'] = 0
         process_data.append(each_item)
     return process_data
+
+
+async def check_clockin_or_clockout(data, clockin, clockout):
+    results = []
+
+    for item in data:
+        each_item = dict(item)
+        id = each_item['id']
+
+        if not each_item['clockin']:
+            if clockin is not None and clockout is None:
+                res = clockin < each_item['clockout']
+                results.append((id, res))
+
+        if not each_item['clockout']:
+            if clockin is None and clockout is not None:
+                res = clockout > each_item['clockin']
+                results.append((id, res))
+
+    return results
+
+
+async def process_employee_exist_data(data):
+    process_data = dict(data)
+    box = []
+
+    for item in process_data:
+        box.append(item)
+        box.append(process_data[item])
+        break
+
+    return box

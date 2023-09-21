@@ -1,10 +1,16 @@
-from fastapi import FastAPI, HTTPException, status, Query
+from fastapi import FastAPI, HTTPException, status, Query, Path
 from typing import Optional
-from models import employees_for_specific_date_range, employees_for_specific_date, clockin_and_clockout
+from pydantic import BaseModel
+from models import employees_for_specific_date_range, employees_for_specific_date, clockin_and_clockout, find_employee_exist_or_not, fillin_clockin_data, fillin_clockout_data
 
-from helper import process_employee_data
+from helper import process_employee_data, check_clockin_or_clockout, process_employee_exist_data
 
 app = FastAPI()
+
+
+class ClockInOutDataFilled(BaseModel):
+    clockin: Optional[int] = None
+    clockout: Optional[int] = None
 
 
 @app.get('/')
@@ -70,3 +76,43 @@ async def clock_feature(employeeNumber: int, clockin: Optional[int] = None, cloc
 
         raise HTTPException(
             status_code=201, detail="Employee record created successfully.")
+
+
+@app.put('/employees/{employeenumber}')
+async def fillin_clockin_or_clockout(data: ClockInOutDataFilled, employeenumber: int = Path(description="Clockin or clockout data of employeenumber you'd like to update.", gt=0)):
+    clockin = data.clockin
+    clockout = data.clockout
+    employee_exist_data = await find_employee_exist_or_not(employeenumber)
+
+    if len(employee_exist_data) == 0:
+        raise HTTPException(
+            status_code=200, detail="No related employeenumber.")
+
+    have_clockin_or_clockout = await check_clockin_or_clockout(
+        employee_exist_data, clockin, clockout)
+
+    if not have_clockin_or_clockout:
+        raise HTTPException(
+            status_code=400, detail="You do not need to fill in clockin or clockout data.")
+    process_data = await process_employee_exist_data(have_clockin_or_clockout)
+
+    id = process_data[0]
+    valid_time = process_data[1]
+
+    if not valid_time:
+        raise HTTPException(
+            status_code=400, detail="Work time must be less than off-work time or off-work time must be greater than work time.")
+
+    if not clockin and clockout is not None:
+        update_clockout_result = await fillin_clockout_data(id, clockout)
+
+        if update_clockout_result:
+            raise HTTPException(
+                status_code=201, detail="Clockout record updated successfully.")
+
+    if not clockout and clockin is not None:
+        update_clockin_result = await fillin_clockin_data(id, clockin)
+
+        if update_clockin_result:
+            raise HTTPException(
+                status_code=201, detail="Clockin record updated successfully.")

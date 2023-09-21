@@ -1,4 +1,5 @@
 from config import connect_to_postgresql
+import asyncio
 
 
 async def employees_for_specific_date_range(start, end):
@@ -50,6 +51,59 @@ async def clockin_and_clockout(employeeNumber, clockIn, clockOut):
         return False
     else:
         print("New employee data inserted successfully.")
+        return True
+    finally:
+        await conn.close()
+
+
+async def find_employee_exist_or_not(employeeNumber):
+    try:
+        conn = await connect_to_postgresql()
+        query = """
+            SELECT * FROM employees WHERE employeenumber = $1
+            """
+        result = await conn.fetch(query, employeeNumber)
+    except:
+        print("Check employee in database error.")
+    else:
+        if len(result) > 0:
+            print("Employee found in database.")
+            return result
+        print("No employee in database.")
+        return result
+    finally:
+        await conn.close()
+
+
+async def fillin_clockout_data(id, clockout):
+    try:
+        conn = await connect_to_postgresql()
+        query = """
+            UPDATE employees SET clockout = $2 WHERE id = $1
+            """
+        await conn.execute(query, id, clockout)
+    except:
+        print("Fill in clockout data error.")
+        return False
+    else:
+        print("Fill in clockout data successfully.")
+        return True
+    finally:
+        await conn.close()
+
+
+async def fillin_clockin_data(id, clockin):
+    try:
+        conn = await connect_to_postgresql()
+        query = """
+            UPDATE employees SET clockin = $2 WHERE id = $1
+            """
+        await conn.execute(query, id, clockin)
+    except:
+        print("Fill in clockin data error.")
+        return False
+    else:
+        print("Fill in clockin data successfully.")
         return True
     finally:
         await conn.close()
