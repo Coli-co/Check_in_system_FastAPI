@@ -1,0 +1,7 @@
+asyncpg==0.28.0
+fastapi==0.103.1
+async-generator==1.10
+python-dotenv==1.0.0
+pytz==2023.3.post1
+uvicorn==0.23.2
+

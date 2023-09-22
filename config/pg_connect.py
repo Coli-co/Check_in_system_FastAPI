@@ -13,9 +13,9 @@ async def connect_to_postgresql():
             host=os.getenv("PGHOST"),
             database=os.getenv("PGDB"),
             user=os.getenv("PGUSER"),
-            password=os.getenv("PGPASSWORD")
+            password=os.getenv("PGPASSWORD"),
+            port=os.getenv("PGPORT")
         )
-
     except Exception as err:
         print("Connecting to PostgreSQL error:", err)
         return None, None
