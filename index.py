@@ -5,7 +5,14 @@ from models import employees_for_specific_date_range, employees_for_specific_dat
 
 from helper import process_employee_data, check_clockin_or_clockout, process_employee_exist_data
 
+from controller import all_employees_for_specific_date, all_employees_for_specific_date_range
+
 app = FastAPI()
+
+
+class Clock_feature(BaseModel):
+    clockin: Optional[int] = None
+    clockout: Optional[int] = None
 
 
 class ClockInOutDataFilled(BaseModel):
@@ -19,33 +26,22 @@ def homepage():
         status_code=200, detail='Welcome to employees clockIn or clockOut API server.')
 
 
-@app.get('/employees/date-range')
-async def all_employees_for_specific_date_range(start: int, end: int):
-    if start <= 0 or end <= 0:
-        raise HTTPException(
-            status_code=400, detail="Start or end must be grater than zero.")
-
-    if start > end:
-        raise HTTPException(
-            status_code=400, detail="Start value must be less than end value.")
-
-    rows = await employees_for_specific_date_range(start, end)
-    result = await process_employee_data(rows)
+@app.get('/employees')
+async def get_all_employees_for_specific_date(date: int):
+    result = await all_employees_for_specific_date(date)
     return result
 
 
-@app.get('/employees')
-async def all_employees_for_specific_date(date: int):
-    if date <= 0:
-        raise HTTPException(
-            status_code=400, detail="Date value must be greater than zero.")
-    rows = await employees_for_specific_date(date)
-    result = await process_employee_data(rows)
+@app.get('/employees/date-range')
+async def get_employees_for_specific_date_range(start: int, end: int):
+    result = await all_employees_for_specific_date_range(start, end)
     return result
 
 
 @app.post('/employees')
-async def clock_feature(employeeNumber: int, clockin: Optional[int] = None, clockout: Optional[int] = None):
+async def clock_feature(employeeNumber: int, data: Clock_feature):
+    clockin = data.clockin
+    clockout = data.clockout
 
     if not clockin and not clockout:
         raise HTTPException(
@@ -76,6 +72,10 @@ async def clock_feature(employeeNumber: int, clockin: Optional[int] = None, cloc
 
         raise HTTPException(
             status_code=201, detail="Employee record created successfully.")
+
+    if clockin <= 0 and clockout <= 0:
+        raise HTTPException(
+            status_code=400, detail="Clockin and clockout must be both greater than zero.")
 
 
 @app.put('/employees/{employeenumber}')
