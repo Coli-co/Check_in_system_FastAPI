@@ -22,7 +22,7 @@ git clone https://github.com/Coli-co/Check_in_system_FastAPI.git
 2. Move into the folder
 
 ```
-cd Check_in_system_FastAPI
+cd Check_in_system_FastAPI/
 ```
 
 3. Create an `.env` file based on `.env.example`. Please remember to fill in the rest values.
